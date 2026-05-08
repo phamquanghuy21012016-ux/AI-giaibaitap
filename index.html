@@ -1,0 +1,1373 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduAI - Trợ Lý Học Tập Thông Minh</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['\\(','\\)'], ['$','$']], displayMath: [['\\[','\\]'], ['$$','$$']] },
+            startup: { typeset: false }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0891B2;
+            --primary-light: #E0F7FA;
+            --primary-dark: #0E7490;
+            --accent: #F59E0B;
+            --accent-light: #FEF3C7;
+            --accent-glow: rgba(245, 158, 11, 0.15);
+            --rose: #E11D48;
+            --rose-light: #FFE4E6;
+            --teal: #14B8A6;
+            --teal-light: #CCFBF1;
+            --slate-900: #0F172A;
+            --slate-700: #334155;
+            --slate-500: #64748B;
+            --slate-300: #CBD5E1;
+            --slate-100: #F1F5F9;
+            --bg: #FAFBFE;
+            --card: #FFFFFF;
+            --radius: 14px;
+            --radius-sm: 10px;
+            --shadow-sm: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+            --shadow-md: 0 4px 16px rgba(15,23,42,0.07), 0 2px 4px rgba(15,23,42,0.04);
+            --shadow-lg: 0 12px 40px rgba(15,23,42,0.1), 0 4px 12px rgba(15,23,42,0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: var(--bg);
+            color: var(--slate-700);
+            min-height: 100vh;
+            display: flex;
+            background-image:
+                radial-gradient(circle at 1px 1px, rgba(8,145,178,0.04) 1px, transparent 0);
+            background-size: 28px 28px;
+        }
+
+        /* ==================== SCROLLBAR ==================== */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+        /* ==================== ANIMATIONS ==================== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(8,145,178,0.3); }
+            50% { box-shadow: 0 0 0 8px rgba(8,145,178,0); }
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        /* ==================== SIDEBAR ==================== */
+        .sidebar {
+            width: 284px;
+            min-width: 284px;
+            background: #FFFFFF;
+            padding: 1.6rem 1.3rem;
+            overflow-y: auto;
+            border-right: 2px solid var(--primary-light);
+            animation: slideInLeft 0.5s ease-out;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1.8rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-light);
+        }
+
+        .sidebar-brand .brand-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: white;
+            font-weight: 800;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .sidebar-brand .brand-text {
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: var(--slate-900);
+            letter-spacing: -0.02em;
+        }
+
+        .sidebar-brand .brand-text span {
+            color: var(--primary);
+        }
+
+        .sidebar-section-label {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--primary);
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .sidebar-section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--primary-light);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.82rem;
+            color: var(--slate-500);
+            margin-bottom: 0.35rem;
+            font-weight: 600;
+        }
+
+        .form-group select,
+        .form-group input[type="password"],
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 0.55rem 0.75rem;
+            background-color: var(--bg);
+            border: 1.5px solid var(--slate-300);
+            border-radius: var(--radius-sm);
+            color: var(--slate-700);
+            font-size: 0.88rem;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(8,145,178,0.1);
+        }
+
+        .form-group input[type="color"] {
+            width: 100%;
+            height: 38px;
+            border: 1.5px solid var(--slate-300);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            cursor: pointer;
+            padding: 3px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input[type="color"]:hover {
+            border-color: var(--primary);
+        }
+
+        .form-group input[type="range"] {
+            width: 100%;
+            accent-color: var(--primary);
+            margin-top: 2px;
+        }
+
+        .btn-save-config {
+            width: 100%;
+            padding: 0.65rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+            font-weight: 600;
+            font-family: 'Quicksand', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            margin-top: 0.3rem;
+            margin-bottom: 1.4rem;
+        }
+
+        .btn-save-config:hover {
+            background: var(--primary-dark);
+        }
+
+        .gesture-card {
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            padding: 0.65rem 0.85rem;
+            margin-bottom: 0.45rem;
+            border-left: 3px solid var(--primary);
+            transition: all 0.2s ease;
+            cursor: default;
+        }
+
+        .gesture-card:hover {
+            background: var(--primary-light);
+            transform: translateX(3px);
+        }
+
+        .gesture-card:nth-child(2) { border-left-color: var(--accent); }
+        .gesture-card:nth-child(3) { border-left-color: var(--teal); }
+        .gesture-card:nth-child(4) { border-left-color: var(--rose); }
+
+        .gesture-card h4 {
+            font-family: 'Quicksand', sans-serif;
+            color: var(--slate-900);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.15rem;
+        }
+
+        .gesture-card p {
+            color: var(--slate-500);
+            font-size: 0.78rem;
+        }
+
+        /* ==================== MAIN ==================== */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        /* ==================== HEADER ==================== */
+        .header {
+            position: relative;
+            padding: 1.4rem 2rem;
+            background: var(--primary);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1.65rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.03em;
+            line-height: 1.2;
+        }
+
+        .header h1 .highlight {
+            color: var(--accent-light);
+        }
+
+        .header p {
+            font-size: 0.88rem;
+            color: rgba(255,255,255,0.8);
+            margin-top: 0.3rem;
+            font-weight: 500;
+        }
+
+        .header-badges {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            padding: 0.35rem 0.75rem;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: 'Quicksand', sans-serif;
+            white-space: nowrap;
+        }
+
+        /* ==================== TABS ==================== */
+        .tab-bar {
+            display: flex;
+            background: var(--card);
+            padding: 0.3rem 0.5rem 0;
+            gap: 0.3rem;
+            border-bottom: 1px solid rgba(8,145,178,0.08);
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.8rem;
+            background: none;
+            border: none;
+            color: var(--slate-500);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            font-family: 'Quicksand', sans-serif;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+            background: var(--primary-light);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 30%;
+            right: 30%;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px 3px 0 0;
+            pointer-events: none;
+        }
+
+        .tab-content {
+            display: none;
+            flex: 1;
+            padding: 1.3rem;
+            overflow-y: auto;
+            animation: fadeInUp 0.35s ease-out;
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ==================== LAYOUTS ==================== */
+        .gesture-layout, .text-layout {
+            display: flex;
+            gap: 1.3rem;
+            flex: 1;
+        }
+
+        .camera-section {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            font-family: 'Quicksand', sans-serif;
+            color: var(--slate-900);
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: inline-block;
+            animation: pulse-glow 2s infinite;
+        }
+
+        .video-container {
+            background: var(--slate-900);
+            border-radius: var(--radius);
+            overflow: hidden;
+            flex: 1;
+            position: relative;
+            border: 2px solid var(--slate-300);
+        }
+
+        .video-container::after {
+            content: 'LIVE';
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            padding: 3px 10px;
+            background: var(--rose);
+            color: white;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            border-radius: 4px;
+            z-index: 2;
+            animation: pulse-glow 2s infinite;
+        }
+
+        .video-container video,
+        .video-container canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .video-container video { transform: scaleX(-1); }
+        .video-container canvas { pointer-events: none; }
+        .video-status {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            padding: 4px 10px;
+            background: rgba(15,23,42,0.7);
+            color: #fff;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 600;
+            border-radius: 6px;
+            z-index: 3;
+        }
+        .video-status.error { background: var(--rose); }
+
+        .camera-controls {
+            display: flex;
+            gap: 0.6rem;
+            margin-top: 0.8rem;
+        }
+
+        /* ==================== BUTTONS ==================== */
+        .btn {
+            padding: 0.6rem 1.3rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-weight: 600;
+            font-family: 'Quicksand', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn:active { transform: scale(0.97); }
+
+        .btn-danger {
+            background: var(--rose-light);
+            color: var(--rose);
+            border: 1.5px solid transparent;
+        }
+
+        .btn-danger:hover {
+            background: #FFF1F2;
+            border-color: var(--rose);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-success {
+            background: var(--teal);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #0D9488;
+        }
+
+        .btn-accent {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-accent:hover {
+            background: #D97706;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* ==================== RESULT BOX ==================== */
+        .result-section, .text-result-section {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .result-box {
+            background: var(--card);
+            border: 1.5px solid var(--slate-300);
+            border-radius: var(--radius);
+            padding: 1.3rem;
+            color: var(--slate-700);
+            font-size: 0.95rem;
+            line-height: 1.85;
+            flex: 1;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            min-height: 200px;
+            transition: border-color 0.3s;
+        }
+
+        .result-box:hover {
+            border-color: var(--primary);
+        }
+
+        .result-box .placeholder {
+            color: var(--slate-500);
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .result-box .placeholder::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-light);
+            border: 2px solid var(--accent);
+            flex-shrink: 0;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .result-box h3 {
+            font-family: 'Quicksand', sans-serif;
+            color: var(--primary);
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin: 0.8rem 0 0.4rem 0;
+            padding-bottom: 0.3rem;
+            border-bottom: 2px solid var(--primary-light);
+        }
+
+        .result-box h4 {
+            font-family: 'Quicksand', sans-serif;
+            color: var(--teal);
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin: 0.6rem 0 0.3rem 0;
+        }
+
+        .result-box p { margin: 0.4rem 0; }
+
+        .result-box strong { color: var(--accent); font-weight: 700; }
+
+        .result-box hr {
+            border: none;
+            border-top: 1.5px dashed var(--slate-300);
+            margin: 1rem 0;
+        }
+
+        .result-box ul, .result-box ol {
+            padding-left: 1.5rem;
+            margin: 0.4rem 0;
+        }
+
+        .result-box code {
+            background: var(--primary-light);
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.88rem;
+            color: var(--primary-dark);
+            font-weight: 500;
+        }
+
+        .result-box pre {
+            background: var(--slate-900);
+            color: #E2E8F0;
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            overflow-x: auto;
+            margin: 0.6rem 0;
+            border-left: 3px solid var(--accent);
+        }
+
+        .result-box pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+
+        /* ==================== FOLLOW-UP ==================== */
+        .followup-box {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.7rem;
+            align-items: center;
+        }
+
+        .followup-input {
+            flex: 1;
+            padding: 0.6rem 0.85rem;
+            background: var(--card);
+            border: 1.5px solid var(--slate-300);
+            border-radius: var(--radius-sm);
+            color: var(--slate-700);
+            font-size: 0.88rem;
+            outline: none;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            transition: all 0.25s ease;
+        }
+
+        .followup-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(8,145,178,0.1);
+        }
+
+        .followup-input::placeholder { color: var(--slate-500); }
+
+        .btn-followup {
+            padding: 0.6rem 1.1rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: 'Quicksand', sans-serif;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s ease;
+        }
+
+        .btn-followup:hover {
+            background: #D97706;
+        }
+
+        .btn-clear-history {
+            padding: 0.55rem 0.7rem;
+            background: transparent;
+            color: var(--slate-500);
+            border: 1.5px solid var(--slate-300);
+            border-radius: var(--radius-sm);
+            font-size: 0.78rem;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .btn-clear-history:hover {
+            background: var(--rose-light);
+            color: var(--rose);
+            border-color: var(--rose);
+        }
+
+        /* ==================== TEXT INPUT ==================== */
+        .input-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .text-input {
+            flex: 1;
+            min-height: 200px;
+            padding: 1rem;
+            background: var(--card);
+            border: 1.5px solid var(--slate-300);
+            border-radius: var(--radius);
+            color: var(--slate-700);
+            font-size: 0.98rem;
+            line-height: 1.7;
+            resize: none;
+            outline: none;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            transition: all 0.25s ease;
+        }
+
+        .text-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(8,145,178,0.1);
+        }
+
+        .text-input::placeholder { color: var(--slate-500); }
+
+        .text-controls {
+            display: flex;
+            gap: 0.6rem;
+            margin-top: 0.8rem;
+        }
+
+        .upload-section {
+            margin-top: 1.2rem;
+            padding: 1rem;
+            border: 2px dashed var(--slate-300);
+            border-radius: var(--radius);
+            background: var(--teal-light);
+            transition: all 0.25s ease;
+        }
+
+        .upload-section:hover {
+            border-color: var(--teal);
+        }
+
+        .upload-section h4 {
+            color: var(--slate-500);
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: 'Quicksand', sans-serif;
+            margin-bottom: 0.6rem;
+        }
+
+        #imageInput { display: none; }
+
+        .btn-upload {
+            background: var(--teal);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+            font-weight: 600;
+            font-family: 'Quicksand', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .btn-upload:hover {
+            background: #0D9488;
+        }
+
+        #imagePreview { margin-top: 0.8rem; }
+
+        #imagePreview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--teal);
+        }
+
+        /* ==================== LOADING ==================== */
+        .loading {
+            display: none;
+            align-items: center;
+            gap: 0.6rem;
+            margin-top: 0.6rem;
+            padding: 0.5rem 0.8rem;
+            background: var(--primary-light);
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(8,145,178,0.15);
+        }
+
+        .loading.show { display: flex; }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2.5px solid var(--primary-light);
+            border-top: 2.5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .loading span {
+            color: var(--primary-dark);
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: 'Quicksand', sans-serif;
+            color: var(--primary-dark);
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .sidebar {
+                width: 100%;
+                min-width: unset;
+                border-right: none;
+                border-bottom: 1px solid rgba(8,145,178,0.1);
+            }
+            .sidebar::before { display: none; }
+            .gesture-layout, .text-layout { flex-direction: column; }
+            .header { padding: 1rem; }
+            .header h1 { font-size: 1.3rem; }
+            .header-badges { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">E</div>
+            <div class="brand-text">Edu<span>AI</span></div>
+        </div>
+
+        <div class="sidebar-section-label">Cấu hình hệ thống</div>
+
+        <div class="form-group">
+            <label>Chọn Camera</label>
+            <select id="cameraIndex">
+                <option value="">Camera mặc định</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Màu nét vẽ</label>
+            <input type="color" id="drawColor" value="#FF6B6B">
+        </div>
+
+        <div class="form-group">
+            <label>Độ dày nét vẽ: <span id="thicknessValue">10</span>px</label>
+            <input type="range" id="lineThickness" min="3" max="20" value="10">
+        </div>
+
+        <button class="btn-save-config" onclick="saveConfig()">Lưu Cấu Hình</button>
+
+        <div class="sidebar-section-label">Hướng dẫn cử chỉ</div>
+
+        <div class="gesture-card">
+            <h4>Giơ ngón trỏ</h4>
+            <p>Vẽ bài tập trên canvas</p>
+        </div>
+        <div class="gesture-card">
+            <h4>Giơ ngón cái</h4>
+            <p>Xóa toàn bộ canvas</p>
+        </div>
+        <div class="gesture-card">
+            <h4>Giơ 3 ngón (giữa + áp út + út)</h4>
+            <p>Gửi bài tập cho AI giải</p>
+        </div>
+        <div class="gesture-card">
+            <h4>Không giơ ngón nào</h4>
+            <p>Tạm dừng (không vẽ)</p>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-content">
+                <h1>AI Hỗ Trợ <span class="highlight">Học Tập</span></h1>
+                <p>Giải bài tập bằng cử chỉ tay, nhập văn bản hoặc upload ảnh</p>
+            </div>
+            <div class="header-badges">
+                <span class="badge">Đa môn học</span>
+                <span class="badge">Hỏi đáp AI</span>
+                <span class="badge">Nhận diện cử chỉ</span>
+            </div>
+        </div>
+
+        <!-- TAB BAR -->
+       <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('text', this)">Nhập Bài Tập</button>
+            <button class="tab-btn" onclick="switchTab('gesture', this)">Cử Chỉ Tay</button>
+        </div>
+        <!-- TAB 1: CỬ CHỈ TAY -->
+        <div class="tab-content" id="tab-gesture">
+            <div class="gesture-layout">
+                <div class="camera-section">
+                    <div class="section-title"><span class="dot"></span> Camera & Canvas</div>
+                    <div class="video-container">
+                        <video id="cameraVideo" playsinline muted autoplay style="display: none;">
+                        <canvas id="drawCanvas"></canvas>
+                        <div class="video-status" id="videoStatus">Đang khởi động camera...</div>
+                    </div>
+                    <div class="camera-controls">
+                        <button class="btn btn-danger" onclick="clearCanvas()">Xóa Canvas</button>
+                        <button class="btn btn-primary" onclick="refreshResult()">Làm Mới Kết Quả</button>
+                    </div>
+                </div>
+                <div class="result-section">
+                    <div class="section-title"><span class="dot"></span> Kết Quả Từ AI</div>
+                    <div class="result-box" id="gestureResult">
+                        <span class="placeholder">Giơ 3 ngón (giữa + áp út + út) để gửi bài tập cho AI giải...</span>
+                    </div>
+                    <div class="loading" id="gestureLoading">
+                        <div class="spinner"></div>
+                        <span>Đang chờ AI xử lý...</span>
+                    </div>
+                    <div class="followup-box">
+                        <input type="text" class="followup-input" id="gestureFollowup" placeholder="Hỏi thêm về kết quả này..." onkeydown="if(event.key==='Enter') sendFollowup('gesture')">
+                        <button class="btn-followup" onclick="sendFollowup('gesture')">Gửi</button>
+                        <button class="btn-clear-history" onclick="clearHistory('gesture')">Xóa lịch sử</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: NHẬP BÀI TẬP -->
+        <div class="tab-content active" id="tab-text">
+            <div class="text-layout">
+                <div class="input-section">
+                    <div class="section-title"><span class="dot"></span> Nhập Câu Hỏi / Bài Tập</div>
+                    <textarea class="text-input" id="mathInput" placeholder="Ví dụ: Giải phương trình 2x + 5 = 15&#10;&#10;Hoặc: Viết chương trình C++ tính tổng 2 số&#10;&#10;Hoặc: Giải thích khái niệm mảng trong tin học"></textarea>
+                    <div class="text-controls">
+                        <button class="btn btn-success" onclick="sendText()" id="btnSendText">Gửi AI Giải</button>
+                        <button class="btn btn-danger" onclick="clearText()">Xóa</button>
+                    </div>
+
+                    <div class="upload-section">
+                        <h4>Hoặc upload ảnh bài tập</h4>
+                        <input type="file" id="imageInput" accept="image/*" onchange="previewImage(event)">
+                        <label for="imageInput" class="btn-upload">Chọn Ảnh</label>
+                        <div id="imagePreview"></div>
+                        <button class="btn btn-accent" onclick="sendImage()" id="btnSendImage" style="display:none; margin-top:0.6rem;">Gửi Ảnh Cho AI Giải</button>
+                    </div>
+                </div>
+                <div class="text-result-section">
+                    <div class="section-title"><span class="dot"></span> Kết Quả Từ AI</div>
+                    <div class="result-box" id="textResult">
+                        <span class="placeholder">Nhập bài tập và nhấn "Gửi AI Giải" để xem kết quả...</span>
+                    </div>
+                    <div class="loading" id="textLoading">
+                        <div class="spinner"></div>
+                        <span>Đang chờ AI xử lý...</span>
+                    </div>
+                    <div class="followup-box">
+                        <input type="text" class="followup-input" id="textFollowup" placeholder="Hỏi thêm về kết quả này..." onkeydown="if(event.key==='Enter') sendFollowup('text')">
+                        <button class="btn-followup" onclick="sendFollowup('text')">Gửi</button>
+                        <button class="btn-clear-history" onclick="clearHistory('text')">Xóa lịch sử</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ==================== RENDER MARKDOWN + LATEX ====================
+        function renderResult(elementId, text) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = marked.parse(text);
+            MathJax.typesetPromise([el]);
+        }
+
+        // ==================== TAB SWITCHING ====================
+        function switchTab(tabName, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        // ==================== CONFIG (CLIENT-SIDE) ====================
+        const clientConfig = {
+            cameraDeviceId: '',
+            drawColor: '#FF6B6B',
+            lineThickness: 10,
+        };
+
+        document.getElementById('lineThickness').addEventListener('input', function() {
+            document.getElementById('thicknessValue').textContent = this.value;
+            clientConfig.lineThickness = parseInt(this.value, 10);
+        });
+        document.getElementById('drawColor').addEventListener('input', function() {
+            clientConfig.drawColor = this.value;
+        });
+        document.getElementById('cameraIndex').addEventListener('change', function() {
+            clientConfig.cameraDeviceId = this.value;
+            startCamera();
+        });
+
+        async function saveConfig() {
+            clientConfig.cameraDeviceId = document.getElementById('cameraIndex').value;
+            clientConfig.drawColor = document.getElementById('drawColor').value;
+            clientConfig.lineThickness = parseInt(document.getElementById('lineThickness').value, 10);
+            await startCamera();
+            const status = document.getElementById('videoStatus');
+            status.textContent = 'Đã áp dụng cấu hình';
+            setTimeout(() => { if (cameraReady) status.textContent = 'Camera sẵn sàng'; }, 1500);
+        }
+
+        // ==================== CAMERA + MEDIAPIPE HANDS ====================
+        const videoEl = document.getElementById('cameraVideo');
+        const drawCanvas = document.getElementById('drawCanvas');
+        const drawCtx = drawCanvas.getContext('2d');
+        const statusEl = document.getElementById('videoStatus');
+
+        let currentStream = null;
+        let hands = null;
+        let cameraReady = false;
+        let prevPos = null;
+        let sentFlag = false;
+        let isSending = false;
+        let lastGestureResult = '';
+
+        function setStatus(msg, isError) {
+            statusEl.textContent = msg;
+            statusEl.classList.toggle('error', !!isError);
+        }
+
+        function clearCanvas() {
+            drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+            document.getElementById('gestureResult').innerHTML =
+                '<span class="placeholder">Giơ 3 ngón (giữa + áp út + út) để gửi bài tập cho AI giải...</span>';
+            lastGestureResult = '';
+        }
+
+        async function populateCameras() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const cams = devices.filter(d => d.kind === 'videoinput');
+                const sel = document.getElementById('cameraIndex');
+                sel.innerHTML = '<option value="">Camera mặc định</option>';
+                cams.forEach((c, i) => {
+                    const opt = document.createElement('option');
+                    opt.value = c.deviceId;
+                    opt.textContent = c.label || `Camera ${i + 1}`;
+                    sel.appendChild(opt);
+                });
+            } catch (e) { /* ignore */ }
+        }
+
+        async function startCamera() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(t => t.stop());
+                currentStream = null;
+            }
+            cameraReady = false;
+            setStatus('Đang khởi động camera...');
+            try {
+                const constraints = {
+                    video: clientConfig.cameraDeviceId
+                        ? { deviceId: { exact: clientConfig.cameraDeviceId }, width: { ideal: 1280 }, height: { ideal: 720 } }
+                        : { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+                    audio: false,
+                };
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                currentStream = stream;
+                videoEl.srcObject = stream;
+                await videoEl.play();
+                await populateCameras();
+
+                // Match canvas pixel size to video
+                drawCanvas.width = videoEl.videoWidth || 1280;
+                drawCanvas.height = videoEl.videoHeight || 720;
+
+                cameraReady = true;
+                setStatus('Camera sẵn sàng');
+            } catch (err) {
+                setStatus('Lỗi camera: ' + err.message, true);
+            }
+        }
+
+        function fingersUp(lm) {
+            // lm: 21 normalized landmarks from MediaPipe
+            // Returns [thumb, index, middle, ring, pinky]
+            const f = [0, 0, 0, 0, 0];
+            // Thumb: compare tip x with IP x. Mirror selfie view of right hand.
+            const handedness = lm._handedness || 'Right';
+            if (handedness === 'Right') {
+                f[0] = lm[4].x < lm[3].x ? 1 : 0;
+            } else {
+                f[0] = lm[4].x > lm[3].x ? 1 : 0;
+            }
+            // 4 other fingers: tip.y < pip.y means up (y grows downward)
+            const tips = [8, 12, 16, 20];
+            const pips = [6, 10, 14, 18];
+            for (let i = 0; i < 4; i++) {
+                f[i + 1] = lm[tips[i]].y < lm[pips[i]].y ? 1 : 0;
+            }
+            return f;
+        }
+
+        function eq(a, b) {
+            return a.length === b.length && a.every((v, i) => v === b[i]);
+        }
+
+        async function sendCanvasToAI() {
+            if (isSending) return;
+            isSending = true;
+            const loading = document.getElementById('gestureLoading');
+            const resultBox = document.getElementById('gestureResult');
+            loading.classList.add('show');
+            resultBox.innerHTML = '<span class="placeholder">Đang gửi bài vẽ cho AI...</span>';
+
+            // Composite onto white background
+            const tmp = document.createElement('canvas');
+            tmp.width = drawCanvas.width;
+            tmp.height = drawCanvas.height;
+            const tctx = tmp.getContext('2d');
+            tctx.fillStyle = '#ffffff';
+            tctx.fillRect(0, 0, tmp.width, tmp.height);
+            tctx.drawImage(drawCanvas, 0, 0);
+            const dataUrl = tmp.toDataURL('image/png');
+
+            try {
+                const res = await fetch('/api/send_canvas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: dataUrl }),
+                });
+                const data = await res.json();
+                lastGestureResult = data.result || '';
+                renderResult('gestureResult', lastGestureResult || '(Không có phản hồi)');
+            } catch (err) {
+                resultBox.innerHTML = '<span style="color:var(--rose);">Lỗi: ' + err.message + '</span>';
+            } finally {
+                loading.classList.remove('show');
+                isSending = false;
+            }
+        }
+
+        function refreshResult() {
+            if (lastGestureResult) renderResult('gestureResult', lastGestureResult);
+        }
+
+        function onHandsResults(results) {
+            if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
+                prevPos = null;
+                sentFlag = false;
+                return;
+            }
+            const lm = results.multiHandLandmarks[0];
+            // attach handedness for thumb logic
+            if (results.multiHandedness && results.multiHandedness[0]) {
+                lm._handedness = results.multiHandedness[0].label;
+            }
+            const fg = fingersUp(lm);
+
+            // Mirror x to match selfie-view video display
+            const tipX = (1 - lm[8].x) * drawCanvas.width;
+            const tipY = lm[8].y * drawCanvas.height;
+
+            // Index up only -> draw
+            if (eq(fg, [0, 1, 0, 0, 0])) {
+                if (prevPos === null) prevPos = [tipX, tipY];
+                drawCtx.strokeStyle = clientConfig.drawColor;
+                drawCtx.lineWidth = clientConfig.lineThickness;
+                drawCtx.lineCap = 'round';
+                drawCtx.lineJoin = 'round';
+                drawCtx.beginPath();
+                drawCtx.moveTo(prevPos[0], prevPos[1]);
+                drawCtx.lineTo(tipX, tipY);
+                drawCtx.stroke();
+                prevPos = [tipX, tipY];
+            } else {
+                prevPos = null;
+            }
+
+            // Thumb up only -> clear canvas
+            if (eq(fg, [1, 0, 0, 0, 0])) {
+                drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+            }
+
+            // Three fingers (middle+ring+pinky) -> send to AI (edge-trigger)
+            if (eq(fg, [0, 0, 1, 1, 1])) {
+                if (!sentFlag) {
+                    sentFlag = true;
+                    sendCanvasToAI();
+                }
+            } else {
+                sentFlag = false;
+            }
+        }
+
+        async function initHands() {
+            hands = new Hands({
+                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/${file}`,
+            });
+            hands.setOptions({
+                maxNumHands: 1,
+                modelComplexity: 1,
+                minDetectionConfidence: 0.7,
+                minTrackingConfidence: 0.5,
+            });
+            hands.onResults(onHandsResults);
+
+            const tick = async () => {
+                if (cameraReady && videoEl.readyState >= 2) {
+                    try { await hands.send({ image: videoEl }); } catch (_) {}
+                }
+                requestAnimationFrame(tick);
+            };
+            tick();
+        }
+
+        (async function bootstrap() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                setStatus('Trình duyệt không hỗ trợ camera', true);
+                return;
+            }
+            await startCamera();
+            await initHands();
+        })();
+
+        // ==================== TEXT TAB ====================
+        async function sendText() {
+            const text = document.getElementById('mathInput').value.trim();
+            if (!text) { alert('Vui lòng nhập bài tập!'); return; }
+
+            const btn = document.getElementById('btnSendText');
+            const loading = document.getElementById('textLoading');
+            btn.disabled = true;
+            loading.classList.add('show');
+            document.getElementById('textResult').innerHTML = '<span class="placeholder">Đang xử lý...</span>';
+
+            try {
+                const res = await fetch('/api/send_text', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                });
+                const data = await res.json();
+                renderResult('textResult', data.result);
+            } catch (err) {
+                document.getElementById('textResult').innerHTML = '<span style="color:var(--rose);">Lỗi: ' + err.message + '</span>';
+            } finally {
+                btn.disabled = false;
+                loading.classList.remove('show');
+            }
+        }
+
+        function clearText() {
+            document.getElementById('mathInput').value = '';
+            document.getElementById('imageInput').value = '';
+            document.getElementById('imagePreview').innerHTML = '';
+            document.getElementById('btnSendImage').style.display = 'none';
+            document.getElementById('textResult').innerHTML =
+                '<span class="placeholder">Nhập bài tập và nhấn "Gửi AI Giải" để xem kết quả...</span>';
+        }
+
+        // ==================== UPLOAD ẢNH ====================
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('imagePreview').innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
+                document.getElementById('btnSendImage').style.display = 'inline-flex';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function sendImage() {
+            const fileInput = document.getElementById('imageInput');
+            const file = fileInput.files[0];
+            if (!file) { alert('Vui lòng chọn ảnh!'); return; }
+
+            const btn = document.getElementById('btnSendImage');
+            const loading = document.getElementById('textLoading');
+            btn.disabled = true;
+            loading.classList.add('show');
+            document.getElementById('textResult').innerHTML = '<span class="placeholder">Đang xử lý ảnh...</span>';
+
+            try {
+                const formData = new FormData();
+                formData.append('image', file);
+                const res = await fetch('/api/send_image', { method: 'POST', body: formData });
+                const data = await res.json();
+                renderResult('textResult', data.result);
+            } catch (err) {
+                document.getElementById('textResult').innerHTML = '<span style="color:var(--rose);">Lỗi: ' + err.message + '</span>';
+            } finally {
+                btn.disabled = false;
+                loading.classList.remove('show');
+            }
+        }
+
+        // ==================== HỎI THÊM (FOLLOW-UP) ====================
+        async function sendFollowup(tab) {
+            const inputId = tab === 'gesture' ? 'gestureFollowup' : 'textFollowup';
+            const resultId = tab === 'gesture' ? 'gestureResult' : 'textResult';
+            const loadingId = tab === 'gesture' ? 'gestureLoading' : 'textLoading';
+
+            const input = document.getElementById(inputId);
+            const question = input.value.trim();
+            if (!question) return;
+
+            const loading = document.getElementById(loadingId);
+            loading.classList.add('show');
+
+            const resultBox = document.getElementById(resultId);
+            resultBox.innerHTML += '<hr><p style="color:var(--primary); font-weight:700;">Bạn hỏi: ' + question + '</p><p class="placeholder">Đang xử lý...</p>';
+            input.value = '';
+
+            try {
+                const res = await fetch('/api/followup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: question, tab: tab })
+                });
+                const data = await res.json();
+
+                const placeholders = resultBox.querySelectorAll('.placeholder');
+                placeholders.forEach(p => p.remove());
+                const answerDiv = document.createElement('div');
+                answerDiv.innerHTML = marked.parse(data.result);
+                answerDiv.style.animation = 'fadeInUp 0.3s ease-out';
+                resultBox.appendChild(answerDiv);
+                MathJax.typesetPromise([answerDiv]);
+                resultBox.scrollTop = resultBox.scrollHeight;
+
+                if (tab === 'gesture') lastGestureResult = data.result;
+            } catch (err) {
+                resultBox.innerHTML += '<p style="color:var(--rose);">Lỗi: ' + err.message + '</p>';
+            } finally {
+                loading.classList.remove('show');
+            }
+        }
+
+        async function clearHistory(tab) {
+            await fetch('/api/clear_history', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tab: tab })
+            });
+            const resultId = tab === 'gesture' ? 'gestureResult' : 'textResult';
+            document.getElementById(resultId).innerHTML =
+                '<span class="placeholder">Lịch sử hội thoại đã được xóa. Bạn có thể bắt đầu câu hỏi mới.</span>';
+            if (tab === 'gesture') lastGestureResult = "";
+        }
+
+        // Ctrl+Enter để gửi
+        document.getElementById('mathInput').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') sendText();
+        });
+    </script>
+
+</body>
+</html>

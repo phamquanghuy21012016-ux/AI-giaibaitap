@@ -1,0 +1,71 @@
+# ==================== TU DONG IGNORE ====================
+
+# --- File extension bo qua ---
+*.txt
+*.sh
+*.md
+
+# --- Ngoai le: giu lai ---
+!taikhoan.txt
+!requirements.txt
+!huong_dan_su_dung.txt
+!cach_chay.txt
+
+# --- Dependencies ---
+node_modules/
+vendor/
+.venv/
+__pycache__/
+
+# --- Build output ---
+dist/
+build/
+out/
+*.exe
+*.dll
+*.so
+*.class
+*.jar
+
+# --- IDE & Editor ---
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Environment & Secret ---
+.env
+.env.local
+.env.production
+*.pem
+*.key
+credentials.json
+
+# --- Log & Cache ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+.cache/
+.temp/
+.tmp/
+
+# --- Docker ---
+docker-compose.override.yml
+
+# --- Test & Coverage ---
+coverage/
+.nyc_output/
+htmlcov/
+
+# --- Python ---
+*.pyc
+*.egg-info/
